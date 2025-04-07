@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { registerNewUser, loginUser, googleAuth } from "../auth/auth_service.js";
+import { generateToken, verifyToken } from "../../utils/jwt.handle.js"; // Import generateToken and verifyToken
+
 
 const registerCtrl = async ({body}: Request, res: Response) => {
     try{
@@ -82,5 +84,24 @@ const googleAuthCallback = async (req: Request, res: Response) => {
     }
 };
 
+const refreshTokenCtrl = async ({ body }: Request, res: Response) => {
+    try {
+        const { refreshToken } = body;
 
-export { registerCtrl, loginCtrl,googleAuthCtrl, googleAuthCallback };
+        if (!refreshToken) {
+            return res.status(400).json({ message: "Refresh token is required" });
+        }
+
+        const decoded = verifyToken(refreshToken); // Verify the refresh token
+        if (!decoded) {
+            return res.status(401).json({ message: "Invalid refresh token" });
+        }
+
+        const newAccessToken = generateToken((decoded as any).id); // Generate a new access token
+        return res.json({ accessToken: newAccessToken });
+    } catch (error: any) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+export { registerCtrl, loginCtrl, googleAuthCtrl, googleAuthCallback, refreshTokenCtrl };

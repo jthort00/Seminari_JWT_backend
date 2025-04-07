@@ -1,5 +1,5 @@
 import { encrypt, verified } from "../../utils/bcrypt.handle.js";
-import { generateToken } from "../../utils/jwt.handle.js";
+import { generateToken, generateRefreshToken } from "../../utils/jwt.handle.js";
 import User, { IUser } from "../users/user_models.js";
 import { Auth } from "./auth_model.js";
 import jwt from 'jsonwebtoken';
@@ -19,17 +19,20 @@ const registerNewUser = async ({ email, password, name, age }: IUser) => {
 
 const loginUser = async ({ email, password }: Auth) => {
     const checkIs = await User.findOne({ email });
-    if(!checkIs) return "NOT_FOUND_USER";
+    if (!checkIs) return "NOT_FOUND_USER";
 
-    const passwordHash = checkIs.password; //El encriptado que ve de la bbdd
+    const passwordHash = checkIs.password;
     const isCorrect = await verified(password, passwordHash);
-    if(!isCorrect) return "INCORRECT_PASSWORD";
+    if (!isCorrect) return "INCORRECT_PASSWORD";
 
-    const token = generateToken(checkIs.email);
+    const accessToken = generateToken(checkIs.email); // Short-lived token
+    const refreshToken = generateRefreshToken(checkIs.email); // Long-lived token
+
     const data = {
-        token,
+        accessToken,
+        refreshToken,
         user: checkIs
-    }
+    };
     return data;
 };
 
