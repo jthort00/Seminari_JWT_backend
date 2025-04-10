@@ -25,7 +25,7 @@ const loginUser = async ({ email, password }: Auth) => {
     const isCorrect = await verified(password, passwordHash);
     if (!isCorrect) return "INCORRECT_PASSWORD";
 
-    const accessToken = generateToken(checkIs.email); // Short-lived token
+    const accessToken = generateToken(checkIs.email, "short-lived"); // Short-lived token
     const refreshToken = generateRefreshToken(checkIs.email); // Long-lived token
 
     const data = {
@@ -91,7 +91,7 @@ const googleAuth = async (code: string) => {
         }
 
         // Genera el token JWT
-        const token = generateToken(user.email);
+        const token = generateToken(user.email, "short-lived");
 
         console.log(token);
         return { token, user };

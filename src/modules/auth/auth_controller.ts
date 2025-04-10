@@ -97,7 +97,7 @@ const refreshTokenCtrl = async ({ body }: Request, res: Response) => {
             return res.status(401).json({ message: "Invalid refresh token" });
         }
 
-        const newAccessToken = generateToken((decoded as any).id); // Generate a new access token
+        const newAccessToken = generateToken((decoded as any).id, (decoded as any).email); // Generate a new access token
         return res.json({ accessToken: newAccessToken });
     } catch (error: any) {
         return res.status(500).json({ message: error.message });
